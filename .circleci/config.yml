@@ -46,8 +46,8 @@ jobs:
             docker build -t "gcr.io/plasma-column-128721/oncall:${VERSION}" .
             docker push "gcr.io/plasma-column-128721/oncall:${VERSION}"
   workflows:
-  build_and_release:
-    jobs:
+    build_and_release:
+      jobs:
       - build-test
       - publish:
           context: 6rs-circle
