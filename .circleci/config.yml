@@ -1,6 +1,6 @@
 version: 2
 jobs:
-  build:
+  build-test:
     docker:
       - image: circleci/python:3.7-stretch-browsers
       - image: mysql/mysql-server:5.7
@@ -32,4 +32,24 @@ jobs:
             source venv/bin/activate
             make serve &
             make check
-
+  build-and-push-template:
+    docker:
+      - image: circleci/python:3.7-stretch
+    steps:
+      - checkout
+      - setup_remote_docker
+      - sixrs-gke/docker-login
+      - run:
+          name: Build docker
+          command: |
+            VERSION=$(./setup.py --version)
+            docker build -t "gcr.io/plasma-column-128721/oncall:${VERSION}" .
+            docker push "gcr.io/plasma-column-128721/oncall:${VERSION}"
+  workflows:
+  build_and_release:
+    jobs:
+      - build-test
+      - publish:
+          context: 6rs-circle
+          requires:
+            - build-test
